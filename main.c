@@ -3,6 +3,7 @@
 #include <string.h>
 #include <windows.h>
 #include <math.h>
+#include <stdbool.h>
 
 const int n1 = 2;
 const int n2 = 1;
@@ -20,6 +21,8 @@ int* setCoordsX(int n, int start);
 int* setCoordsY(int n, int start);
 
 int mod(int x1, int x2);
+
+float **createAdjMatrix(float** A, double c, int n, bool isDirected);
 
 void drawDirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY);
 void drawUndirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY);
@@ -79,12 +82,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             int *nx;
             int *ny;
             float **A;
-            A = randm(2102);
-            A = mulmr((1.0 - n3*0.01 - n4*0.01 - 0.3), A, N);
+            float **T;
 
+            A = createAdjMatrix(A, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, true);
             printf("Directed graph:\n");
             drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 100);
             printf("\n");
+
+            T = createAdjMatrix(T, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, false);
             printf("Undirected graph:\n");
             drawUndirectedGraph(hdc, A, N, nn, nx, ny, 600, 100);
 
@@ -205,6 +210,21 @@ int mod(int x1, int x2) {
     int res = x1 - x2;
     if (res > 0) return res;
     else return (-1)*res;
+}
+
+float **createAdjMatrix(float** A, double c, int n, bool isDirected) {
+    A = randm(2102);
+    A = mulmr((1.0 - n3*0.01 - n4*0.01 - 0.3), A, n);
+    if (!isDirected) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (A[i][j] == 1) {
+                    A[j][i] = 1;
+                }
+            }
+        }
+    }
+    return A;
 }
 
 void drawDirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY) {
