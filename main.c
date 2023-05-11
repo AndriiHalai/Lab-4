@@ -27,6 +27,8 @@ float **createAdjMatrix(float** A, double c, int n, bool isDirected);
 void drawDirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY);
 void drawUndirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY);
 
+void showInOutDegree(float **A, int n);
+void showUndirectedGraphDegree(float **A, int n);
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -87,11 +89,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             A = createAdjMatrix(A, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, true);
             printf("Directed graph:\n");
             drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 100);
-            printf("\n");
+
+            showInOutDegree(A, N);
 
             T = createAdjMatrix(T, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, false);
             printf("Undirected graph:\n");
             drawUndirectedGraph(hdc, A, N, nn, nx, ny, 600, 100);
+
+            showUndirectedGraphDegree(T, N);
 
             EndPaint(hWnd, &ps);
             break;
@@ -516,5 +521,52 @@ void drawUndirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int
         } else {
             TextOut(hdc, nx[i] - dtx-4, ny[i] - dy / 2, nn[i], 2);
         }
+    }
+}
+
+void showInOutDegree(float **A, int n) {
+    int *out = malloc(sizeof(int) * n);
+    int *in = malloc(sizeof(int) * n);
+    for (int i = 0; i < n; i++) {
+        int degree = 0;
+        for (int j = 0; j < n; j++) {
+            if (A[i][j] == 1) degree++;
+        }
+        out[i] = degree;
+    }
+    for (int j = 0; j < n; j++) {
+        int degree = 0;
+        for (int i = 0; i < n; i++) {
+            if (A[i][j] == 1) degree++;
+        }
+        in[j] = degree;
+    }
+
+    printf("\nIncoming and outgoing degrees of vertexes of a directed graph:\n");
+    printf("Vertex\tIn\tOut\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t\n", (i+1), in[i], out[i]);
+    }
+    printf("\n");
+}
+
+void showUndirectedGraphDegree(float **A, int n) {
+    int *arr = malloc(sizeof(int) * n);
+    for (int i = 0; i < n; i++) {
+        int degree = 0;
+        for (int j = 0; j < n; j++) {
+            if (A[i][j] == 1 && i == j) {
+                degree += 2;
+            } else if(A[i][j] == 1) {
+                degree++;
+            }
+        }
+        arr[i] = degree;
+    }
+
+    printf("\nDegrees of vertexes of an undirected graph:\n");
+    printf("Vertex\tDegree\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\n", (i+1), arr[i]);
     }
 }
