@@ -27,6 +27,10 @@ float **createAdjMatrix(float** A, double c, int n, bool isDirected);
 void drawDirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY);
 void drawUndirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *ny, int startX, int startY);
 
+int *getDirectedInDegree(float **A, int n);
+int *getDirectedOutDegree(float **A, int n);
+int *getUndirectedGraphDegree(float **A, int n);
+
 void showInOutDegree(float **A, int n);
 void showUndirectedGraphDegree(float **A, int n);
 
@@ -524,16 +528,8 @@ void drawUndirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int
     }
 }
 
-void showInOutDegree(float **A, int n) {
-    int *out = malloc(sizeof(int) * n);
+int *getDirectedInDegree(float **A, int n) {
     int *in = malloc(sizeof(int) * n);
-    for (int i = 0; i < n; i++) {
-        int degree = 0;
-        for (int j = 0; j < n; j++) {
-            if (A[i][j] == 1) degree++;
-        }
-        out[i] = degree;
-    }
     for (int j = 0; j < n; j++) {
         int degree = 0;
         for (int i = 0; i < n; i++) {
@@ -541,16 +537,22 @@ void showInOutDegree(float **A, int n) {
         }
         in[j] = degree;
     }
-
-    printf("\nIncoming and outgoing degrees of vertexes of a directed graph:\n");
-    printf("Vertex\tIn\tOut\n");
-    for (int i = 0; i < n; i++) {
-        printf("%d\t%d\t%d\t\n", (i+1), in[i], out[i]);
-    }
-    printf("\n");
+    return in;
 }
 
-void showUndirectedGraphDegree(float **A, int n) {
+int *getDirectedOutDegree(float **A, int n) {
+    int *out = malloc(sizeof(int) * n);
+    for (int i = 0; i < n; i++) {
+        int degree = 0;
+        for (int j = 0; j < n; j++) {
+            if (A[i][j] == 1) degree++;
+        }
+        out[i] = degree;
+    }
+    return out;
+}
+
+int *getUndirectedGraphDegree(float **A, int n) {
     int *arr = malloc(sizeof(int) * n);
     for (int i = 0; i < n; i++) {
         int degree = 0;
@@ -563,7 +565,23 @@ void showUndirectedGraphDegree(float **A, int n) {
         }
         arr[i] = degree;
     }
+    return arr;
+}
 
+void showInOutDegree(float **A, int n) {
+    int *out = getDirectedOutDegree(A, n);
+    int *in = getDirectedInDegree(A,n);
+
+    printf("\nIncoming and outgoing degrees of vertexes of a directed graph:\n");
+    printf("Vertex\tIn\tOut\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t\n", (i+1), in[i], out[i]);
+    }
+    printf("\n");
+}
+
+void showUndirectedGraphDegree(float **A, int n) {
+    int *arr = getUndirectedGraphDegree(A, n);
     printf("\nDegrees of vertexes of an undirected graph:\n");
     printf("Vertex\tDegree\n");
     for (int i = 0; i < n; i++) {
