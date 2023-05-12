@@ -34,6 +34,9 @@ int *getUndirectedGraphDegree(float **A, int n);
 void showInOutDegree(float **A, int n);
 void showUndirectedGraphDegree(float **A, int n);
 
+void isRegularUndirectedGraph(float **A, int n);
+void isRegularDirectedGraph(float **A, int n);
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
@@ -95,12 +98,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 100);
 
             showInOutDegree(A, N);
+            isRegularDirectedGraph(A, N);
 
             T = createAdjMatrix(T, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, false);
             printf("Undirected graph:\n");
-            drawUndirectedGraph(hdc, A, N, nn, nx, ny, 600, 100);
+            drawUndirectedGraph(hdc, T, N, nn, nx, ny, 600, 100);
 
             showUndirectedGraphDegree(T, N);
+            isRegularUndirectedGraph(T, N);
 
             EndPaint(hWnd, &ps);
             break;
@@ -586,5 +591,39 @@ void showUndirectedGraphDegree(float **A, int n) {
     printf("Vertex\tDegree\n");
     for (int i = 0; i < n; i++) {
         printf("%d\t%d\n", (i+1), arr[i]);
+    }
+}
+
+void isRegularUndirectedGraph(float **A, int n) {
+    int *degree = getUndirectedGraphDegree(A, n);
+    for (int i = 0; i < n-1; i++) {
+        if (degree[i] != degree[i+1]) {
+            printf("\nThe graph is not a regular graph\n");
+            break;
+        } else if (i == n-2) {
+            printf("\nThe graph is %d-regular graph\n", degree[0]);
+        }
+    }
+}
+
+void isRegularDirectedGraph(float **A, int n) {
+    int *in = getDirectedInDegree(A, n);
+    int *out = getDirectedInDegree(A, n);
+    for (int i = 0; i < n-1; i++) {
+        if (in[i] != in[i+1]) {
+            printf("The graph is not a regular in graph\n");
+            break;
+        } else if (i == n-2) {
+            printf("The graph is %d-regular in graph\n", in[0]);
+        }
+    }
+
+    for (int i = 0; i < n-1; i++) {
+        if (out[i] != out[i+1]) {
+            printf("The graph is not a regular out graph\n\n");
+            break;
+        } else if (i == n-2) {
+            printf("The graph is %d-regular out graph\n\n", out[0]);
+        }
     }
 }
