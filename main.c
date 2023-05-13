@@ -593,6 +593,8 @@ void showInOutDegree(float **A, int n) {
         printf("%d\t%d\t%d\t\n", (i+1), in[i], out[i]);
     }
     printf("\n");
+    free(out);
+    free(in);
 }
 
 void showUndirectedGraphDegree(float **A, int n) {
@@ -602,6 +604,7 @@ void showUndirectedGraphDegree(float **A, int n) {
     for (int i = 0; i < n; i++) {
         printf("%d\t%d\n", (i+1), arr[i]);
     }
+    free(arr);
 }
 
 void isRegularUndirectedGraph(float **A, int n) {
@@ -614,6 +617,7 @@ void isRegularUndirectedGraph(float **A, int n) {
             printf("\nThe graph is %d-regular graph.\n", degree[0]);
         }
     }
+    free(degree);
 }
 
 void isRegularDirectedGraph(float **A, int n) {
@@ -636,6 +640,8 @@ void isRegularDirectedGraph(float **A, int n) {
             printf("The graph is %d-regular out graph.\n\n", out[0]);
         }
     }
+    free(in);
+    free(out);
 }
 
 void showDirectedGraphEndpoints(float **A, int n) {
@@ -660,6 +666,9 @@ void showDirectedGraphEndpoints(float **A, int n) {
     } else {
         printf("The graph does not have endpoints.\n");
     }
+    free(out);
+    free(in);
+    free(endpoints);
 }
 
 void showUndirectedGraphEndpoints(float **A, int n) {
@@ -681,6 +690,8 @@ void showUndirectedGraphEndpoints(float **A, int n) {
     } else {
         printf("\nThe graph does not have endpoints.\n");
     }
+    free(arr);
+    free(endpoints);
 }
 
 void showDirectedGraphIsolatedVertexes(float **A, int n) {
@@ -705,6 +716,9 @@ void showDirectedGraphIsolatedVertexes(float **A, int n) {
     } else {
         printf("The graph does not have isolated vertexes.\n");
     }
+    free(out);
+    free(in);
+    free(isolatedVertexes);
 }
 
 void showUndirectedGraphIsolatedVertexes(float **A, int n) {
@@ -727,4 +741,6 @@ void showUndirectedGraphIsolatedVertexes(float **A, int n) {
     } else {
         printf("The graph does not have isolated vertexes.\n");
     }
+    free(arr);
+    free(isolatedVertexes);
 }
