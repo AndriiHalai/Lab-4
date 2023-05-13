@@ -40,6 +40,9 @@ void isRegularDirectedGraph(float **A, int n);
 void showDirectedGraphEndpoints(float **A, int n);
 void showUndirectedGraphEndpoints(float **A, int n);
 
+void showDirectedGraphIsolatedVertexes(float **A, int n);
+void showUndirectedGraphIsolatedVertexes(float **A, int n);
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
@@ -103,6 +106,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             showInOutDegree(A, N);
             isRegularDirectedGraph(A, N);
             showDirectedGraphEndpoints(A, N);
+            showDirectedGraphIsolatedVertexes(A, N);
 
             T = createAdjMatrix(T, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, false);
             printf("Undirected graph:\n");
@@ -111,6 +115,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             showUndirectedGraphDegree(T, N);
             isRegularUndirectedGraph(T, N);
             showUndirectedGraphEndpoints(T, N);
+            showUndirectedGraphIsolatedVertexes(T, N);
 
             EndPaint(hWnd, &ps);
             break;
@@ -651,9 +656,9 @@ void showDirectedGraphEndpoints(float **A, int n) {
         for (int i = 0; i < count; i++) {
             printf("%d ", endpoints[i]);
         }
-        printf("\n\n");
+        printf("\n");
     } else {
-        printf("The graph does not have endpoints.\n\n");
+        printf("The graph does not have endpoints.\n");
     }
 }
 
@@ -672,9 +677,54 @@ void showUndirectedGraphEndpoints(float **A, int n) {
         for (int i = 0; i < count; i++) {
             printf("%d ", endpoints[i]);
         }
-        printf("\n\n");
+        printf("\n");
     } else {
-        printf("\nThe graph does not have endpoints.\n\n");
+        printf("\nThe graph does not have endpoints.\n");
     }
 }
 
+void showDirectedGraphIsolatedVertexes(float **A, int n) {
+    int *out = getDirectedOutDegree(A, n);
+    int *in = getDirectedInDegree(A, n);
+    int *isolatedVertexes = malloc(sizeof(int) * n);
+    int count = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (in[i] == 0 && out[i] == 0) {
+            isolatedVertexes[count] = i+1;
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        printf("Isolated vertexes: ");
+        for (int i = 0; i < count; i++) {
+            printf("%d ", isolatedVertexes[i]);
+        }
+        printf("\n");
+    } else {
+        printf("The graph does not have isolated vertexes.\n");
+    }
+}
+
+void showUndirectedGraphIsolatedVertexes(float **A, int n) {
+    int *arr = getUndirectedGraphDegree(A, n);
+    int *isolatedVertexes = malloc(sizeof(int) * n);
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if (arr[i] == 0) {
+            isolatedVertexes[count] = i+1;
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        printf("Isolated vertexes: ");
+        for (int i = 0; i < count; i++) {
+            printf("%d ", isolatedVertexes[i]);
+        }
+        printf("\n");
+    } else {
+        printf("The graph does not have isolated vertexes.\n");
+    }
+}
