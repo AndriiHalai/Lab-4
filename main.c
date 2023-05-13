@@ -37,6 +37,9 @@ void showUndirectedGraphDegree(float **A, int n);
 void isRegularUndirectedGraph(float **A, int n);
 void isRegularDirectedGraph(float **A, int n);
 
+void showDirectedGraphEndpoints(float **A, int n);
+void showUndirectedGraphEndpoints(float **A, int n);
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
@@ -99,6 +102,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 
             showInOutDegree(A, N);
             isRegularDirectedGraph(A, N);
+            showDirectedGraphEndpoints(A, N);
 
             T = createAdjMatrix(T, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, false);
             printf("Undirected graph:\n");
@@ -106,6 +110,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 
             showUndirectedGraphDegree(T, N);
             isRegularUndirectedGraph(T, N);
+            showUndirectedGraphEndpoints(T, N);
 
             EndPaint(hWnd, &ps);
             break;
@@ -598,10 +603,10 @@ void isRegularUndirectedGraph(float **A, int n) {
     int *degree = getUndirectedGraphDegree(A, n);
     for (int i = 0; i < n-1; i++) {
         if (degree[i] != degree[i+1]) {
-            printf("\nThe graph is not a regular graph\n");
+            printf("\nThe graph is not a regular graph.\n");
             break;
         } else if (i == n-2) {
-            printf("\nThe graph is %d-regular graph\n", degree[0]);
+            printf("\nThe graph is %d-regular graph.\n", degree[0]);
         }
     }
 }
@@ -611,19 +616,65 @@ void isRegularDirectedGraph(float **A, int n) {
     int *out = getDirectedInDegree(A, n);
     for (int i = 0; i < n-1; i++) {
         if (in[i] != in[i+1]) {
-            printf("The graph is not a regular in graph\n");
+            printf("The graph is not a regular in graph.\n");
             break;
         } else if (i == n-2) {
-            printf("The graph is %d-regular in graph\n", in[0]);
+            printf("The graph is %d-regular in graph.\n", in[0]);
         }
     }
 
     for (int i = 0; i < n-1; i++) {
         if (out[i] != out[i+1]) {
-            printf("The graph is not a regular out graph\n\n");
+            printf("The graph is not a regular out graph.\n\n");
             break;
         } else if (i == n-2) {
-            printf("The graph is %d-regular out graph\n\n", out[0]);
+            printf("The graph is %d-regular out graph.\n\n", out[0]);
         }
     }
 }
+
+void showDirectedGraphEndpoints(float **A, int n) {
+    int *out = getDirectedOutDegree(A, n);
+    int *in = getDirectedInDegree(A,n);
+    int *endpoints = malloc(sizeof(int) * n);
+    int count = 0;
+
+    for (int i = 0; i < n; i++) {
+        if ((out[i] + in[i]) == 1) {
+            endpoints[count] = i+1;
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        printf("Endpoints: ");
+        for (int i = 0; i < count; i++) {
+            printf("%d ", endpoints[i]);
+        }
+        printf("\n\n");
+    } else {
+        printf("The graph does not have endpoints.\n\n");
+    }
+}
+
+void showUndirectedGraphEndpoints(float **A, int n) {
+    int *arr = getUndirectedGraphDegree(A, n);
+    int *endpoints = malloc(sizeof(int) * n);
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if ((arr[i]) == 1) {
+            endpoints[count] = i+1;
+            count++;
+        }
+    }
+    if (count > 0) {
+        printf("\nEndpoints: ");
+        for (int i = 0; i < count; i++) {
+            printf("%d ", endpoints[i]);
+        }
+        printf("\n\n");
+    } else {
+        printf("\nThe graph does not have endpoints.\n\n");
+    }
+}
+
