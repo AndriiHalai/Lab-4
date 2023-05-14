@@ -43,6 +43,11 @@ void showUndirectedGraphEndpoints(float **A, int n);
 void showDirectedGraphIsolatedVertexes(float **A, int n);
 void showUndirectedGraphIsolatedVertexes(float **A, int n);
 
+float **multiplyMatrices(float **M, float **S, int n);
+float **sumMatrices(float **M, float **S, int n);
+float **B(float **A, int n);
+float **getAccessibilityMatrix(float **A, int n);
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
@@ -70,8 +75,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
                         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                         100,
                         100,
-                        1200,
-                        700,
+                        1500,
+                        1000,
                         NULL,
                         NULL,
                         (HINSTANCE)hInstance,
@@ -98,6 +103,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             int *ny;
             float **A;
             float **T;
+            float **accessibilityMatrix;
 
             A = createAdjMatrix(A, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, true);
             printf("Directed graph:\n");
@@ -116,6 +122,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             isRegularUndirectedGraph(T, N);
             showUndirectedGraphEndpoints(T, N);
             showUndirectedGraphIsolatedVertexes(T, N);
+
+            printf("\nModified matrix:\n");
+            A = createAdjMatrix(A, (1.0 - n3*0.005 - n4*0.005 - 0.27), N, true);
+            drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 500);
+            printf("\n");
+            accessibilityMatrix = getAccessibilityMatrix(A, N);
+            printf("\n");
 
             EndPaint(hWnd, &ps);
             break;
@@ -238,7 +251,7 @@ int mod(int x1, int x2) {
 
 float **createAdjMatrix(float** A, double c, int n, bool isDirected) {
     A = randm(2102);
-    A = mulmr((1.0 - n3*0.01 - n4*0.01 - 0.3), A, n);
+    A = mulmr(c, A, n);
     if (!isDirected) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -743,4 +756,69 @@ void showUndirectedGraphIsolatedVertexes(float **A, int n) {
     }
     free(arr);
     free(isolatedVertexes);
+}
+
+float **multiplyMatrices(float **M, float **S, int n) {
+    float **res = (float**)malloc(n * sizeof(float*));
+    for (int i = 0; i < n; i++) {
+        res[i] = (float*)malloc(n * sizeof(float));
+        for (int j =0; j < n; j++) {
+            res[i][j] = 0;
+            for (int k = 0; k < n; k++) {
+                res[i][j] += M[i][k]*S[k][j];
+            }
+        }
+    }
+    return res;
+}
+
+float **sumMatrices(float **M, float **S, int n) {
+    float **res = (float**)malloc(n * sizeof(float*));
+    for (int i = 0; i < n; i++) {
+        res[i] = (float*)malloc(n * sizeof(float));
+        for (int j =0; j < n; j++) {
+            res[i][j] = M[i][j] + S[i][j];
+        }
+    }
+    return res;
+}
+
+float **B(float **A, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (A[i][j] > 0) A[i][j] = 1;
+        }
+    }
+    return A;
+}
+
+float **getAccessibilityMatrix(float **A, int n) {
+    float **power = A;
+    float **accessibilityMatrix;
+    float **identityMatrix = (float**)malloc(n * sizeof(float*));
+    for (int i = 0; i < n; i++) {
+        identityMatrix[i] = (float*)malloc(n * sizeof(float));
+        for (int j = 0; j < n; j++) {
+            if (i == j) identityMatrix[i][j] = 1;
+            else identityMatrix[i][j] = 0;
+        }
+    }
+
+    accessibilityMatrix = sumMatrices(identityMatrix, A, n);
+    for (int i = 1; i < n - 1; i++) {
+        power = multiplyMatrices(power, A, n);
+        accessibilityMatrix = sumMatrices(accessibilityMatrix, power, n);
+    }
+    accessibilityMatrix = B(accessibilityMatrix, n);
+    printf("Accessibility matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%.0f ", accessibilityMatrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    free(power);
+    free(identityMatrix);
+    return accessibilityMatrix;
 }
