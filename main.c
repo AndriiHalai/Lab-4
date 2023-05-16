@@ -48,6 +48,8 @@ float **sumMatrices(float **M, float **S, int n);
 float **B(float **A, int n);
 float **getAccessibilityMatrix(float **A, int n);
 
+void showTwoLongPaths(float **A, int n);
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
@@ -129,6 +131,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             printf("\n");
             accessibilityMatrix = getAccessibilityMatrix(A, N);
             printf("\n");
+            printf("\n");
+            showTwoLongPaths(A, N);
 
             EndPaint(hWnd, &ps);
             break;
@@ -821,4 +825,23 @@ float **getAccessibilityMatrix(float **A, int n) {
     free(power);
     free(identityMatrix);
     return accessibilityMatrix;
+}
+
+void showTwoLongPaths(float **A, int n) {
+    float **squareMatrix;
+    squareMatrix = multiplyMatrices(A, A, n);
+
+    printf("Paths of length of 2:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (squareMatrix[i][j] >= 1) {
+                for (int k = 0; k < n; k++) {
+                    if (A[k][j] == 1 && A[i][k] == 1) {
+                        printf("%d -> %d -> %d\n", (i+1), (k+1), (j+1));
+                    }
+                }
+            }
+        }
+    }
+    free(squareMatrix);
 }
