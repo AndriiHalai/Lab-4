@@ -47,9 +47,14 @@ float **multiplyMatrices(float **M, float **S, int n);
 float **sumMatrices(float **M, float **S, int n);
 float **B(float **A, int n);
 float **getAccessibilityMatrix(float **A, int n);
+void showAccessibilityMatrix(float **A, int n);
 
 void showTwoLongPaths(float **A, int n);
 void showThreeLongPaths(float **A, int n);
+
+float **getTransposedMatrix(float **A, int n);
+bool isInArray(float *arr, float element, int n);
+void showSCC(float **A, int n);
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -131,12 +136,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 500);
             printf("\n");
             accessibilityMatrix = getAccessibilityMatrix(A, N);
+            showAccessibilityMatrix(accessibilityMatrix, N);
             printf("\n");
             printf("\n");
             showTwoLongPaths(A, N);
 
             printf("\n");
             showThreeLongPaths(A, N);
+            showSCC(A, N);
 
             EndPaint(hWnd, &ps);
             break;
@@ -818,17 +825,20 @@ float **getAccessibilityMatrix(float **A, int n) {
         accessibilityMatrix = sumMatrices(accessibilityMatrix, power, n);
     }
     accessibilityMatrix = B(accessibilityMatrix, n);
-    printf("Accessibility matrix:\n");
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            printf("%.0f ", accessibilityMatrix[i][j]);
-        }
-        printf("\n");
-    }
 
     free(power);
     free(identityMatrix);
     return accessibilityMatrix;
+}
+
+void showAccessibilityMatrix(float **A, int n) {
+    printf("Accessibility matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%.0f ", A[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 void showTwoLongPaths(float **A, int n) {
@@ -874,4 +884,57 @@ void showThreeLongPaths(float **A, int n) {
     }
     free(squareMatrix);
     free(cubeMatrix);
+}
+
+float **getTransposedMatrix(float **A, int n) {
+    float** transposedMatrix = (float**)malloc(n * sizeof(float*));
+    for (int i = 0; i < n; i++) {
+        transposedMatrix[i] = (float*)malloc(n * sizeof(float));
+        for (int j = 0; j < n; j++) {
+            transposedMatrix[i][j] = A[j][i];
+        }
+    }
+    return transposedMatrix;
+}
+
+bool isInArray(float *arr, float element, int n) {
+    for (int i = 0; i < n; i++) {
+        if (arr[i] == element) return true;
+    }
+    return false;
+}
+
+void showSCC(float **A, int n) {
+    float **sccMatrix = (float**)malloc(n * sizeof(float*));
+    float **accessibilityMatrix;
+    float **transposedMatrix;
+    float *components = (float *) malloc(n * sizeof(float));
+    accessibilityMatrix = getAccessibilityMatrix(A, n);
+    transposedMatrix = getTransposedMatrix(accessibilityMatrix, n);
+    printf("\nStrong connected components matrix:\n");
+    for (int i = 0; i < n; i++) {
+        sccMatrix[i] = (float*)malloc(n * sizeof(float));
+        for (int j = 0; j < n; j++) {
+            sccMatrix[i][j] = accessibilityMatrix[i][j] * transposedMatrix[i][j];
+            printf("%.0f ", sccMatrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    for (int i = 0; i < n; i++) {
+        components[i] = -1;
+    }
+
+    printf("\nStrong connected components: \n");
+    for (int i = 0; i < n; i++) {
+        int flag = 0;
+        for (int j = 0; j < n; j++) {
+            if (sccMatrix[i][j] == 1 && !isInArray(components, j, n)) {
+                printf("%d ", (j+1));
+                components[j] = (float)j;
+                flag = 1;
+            }
+        }
+        if (flag) printf("\n");
+    }
 }
