@@ -56,6 +56,96 @@ float **getTransposedMatrix(float **A, int n);
 bool isInArray(float *arr, float element, int n);
 void showSCC(float **A, int n);
 
+// Function to perform Depth First Search
+void DFS(int** graph, int* visited, int vertex, int num_vertices, int* stack, int* stack_top) {
+    visited[vertex] = 1;
+
+    for (int i = 0; i < num_vertices; i++) {
+        if (graph[vertex][i] && !visited[i]) {
+            DFS(graph, visited, i, num_vertices, stack, stack_top);
+        }
+    }
+
+    stack[++(*stack_top)] = vertex;
+}
+
+// Function to transpose the given graph
+int** transposeGraph(int** graph, int num_vertices) {
+    int** transposed_graph = (int**)malloc(num_vertices * sizeof(int*));
+    for (int i = 0; i < num_vertices; i++) {
+        transposed_graph[i] = (int*)malloc(num_vertices * sizeof(int));
+        for (int j = 0; j < num_vertices; j++) {
+            transposed_graph[i][j] = graph[j][i];
+        }
+    }
+    return transposed_graph;
+}
+
+// Function to compute the condensation graph
+int** condensationGraph(int** graph, int num_vertices) {
+    int* visited = (int*)calloc(num_vertices, sizeof(int));
+    int* stack = (int*)malloc(num_vertices * sizeof(int));
+    int stack_top = -1;
+
+    // Perform the first DFS to fill the stack
+    for (int i = 0; i < num_vertices; i++) {
+        if (!visited[i]) {
+            DFS(graph, visited, i, num_vertices, stack, &stack_top);
+        }
+    }
+
+    // Transpose the graph
+    int** transposed_graph = transposeGraph(graph, num_vertices);
+
+    // Reset the visited array
+    for (int i = 0; i < num_vertices; i++) {
+        visited[i] = 0;
+    }
+
+    // Perform the second DFS on the transposed graph
+    int** condensation_graph = (int**)malloc(num_vertices * sizeof(int*));
+    for (int i = 0; i < num_vertices; i++) {
+        condensation_graph[i] = (int*)calloc(num_vertices, sizeof(int));
+    }
+
+    while (stack_top >= 0) {
+        int vertex = stack[stack_top--];
+
+        if (!visited[vertex]) {
+            DFS(transposed_graph, visited, vertex, num_vertices, stack, &stack_top);
+
+            // Add the visited vertices to the condensation graph
+            for (int i = 0; i < num_vertices; i++) {
+                if (visited[i]) {
+                    condensation_graph[vertex][i] = 1;
+                }
+            }
+        }
+    }
+
+    // Free memory
+    free(stack);
+    free(visited);
+    for (int i = 0; i < num_vertices; i++) {
+        free(transposed_graph[i]);
+    }
+    free(transposed_graph);
+
+    return condensation_graph;
+}
+
+// Function to display the adjacency matrix
+void displayAdjacencyMatrix(int** graph, int num_vertices) {
+    printf("Adjacency matrix of condensate graph:\n");
+    for (int i = 0; i < num_vertices; i++) {
+        for (int j = 0; j < num_vertices; j++) {
+            printf("%d ", graph[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
@@ -144,6 +234,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
             printf("\n");
             showThreeLongPaths(A, N);
             showSCC(A, N);
+
+            float **condensation = condensationGraph(A, N);
+            displayAdjacencyMatrix(condensation, 1);
+            drawDirectedGraph(hdc, condensation, 1, nn, nx, ny, 500, 500);
 
             EndPaint(hWnd, &ps);
             break;
