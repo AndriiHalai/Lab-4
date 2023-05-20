@@ -233,6 +233,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 
             printf("\nModified matrix:\n");
             A = createAdjMatrix(A, (1.0 - n3*0.005 - n4*0.005 - 0.27), N, true);
+            showAdjMatrix(A, N);
             drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 500);
             printf("\n");
             accessibilityMatrix = getAccessibilityMatrix(A, N);
@@ -389,13 +390,6 @@ void drawDirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *
     if (horizontalSide <= 1) {
         horizontalSide = ceilf((float)n / 2);
     }
-
-//    for (int i = 0; i < n; i++) {
-//        for (int j = 0; j < n; j++) {
-//            printf("%.0f ", matrix[i][j]);
-//        }
-//        printf("\n");
-//    }
 
     nn = setVertexes(n);
     nx = setCoordsX(n, startX);
