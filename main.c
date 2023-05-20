@@ -145,6 +145,15 @@ void displayAdjacencyMatrix(int** graph, int num_vertices) {
     }
 }
 
+void showAdjMatrix(float **A, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%.0f ", A[i][j]);
+        }
+        printf("\n");
+    }
+}
+
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -205,6 +214,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 
             A = createAdjMatrix(A, (1.0 - n3*0.01 - n4*0.01 - 0.3), N, true);
             printf("Directed graph:\n");
+            showAdjMatrix(A, N);
             drawDirectedGraph(hdc, A, N, nn, nx, ny, 100, 100);
 
             showInOutDegree(A, N);
@@ -380,12 +390,12 @@ void drawDirectedGraph(HDC hdc, float** matrix, int n, char **nn, int *nx, int *
         horizontalSide = ceilf((float)n / 2);
     }
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            printf("%.0f ", matrix[i][j]);
-        }
-        printf("\n");
-    }
+//    for (int i = 0; i < n; i++) {
+//        for (int j = 0; j < n; j++) {
+//            printf("%.0f ", matrix[i][j]);
+//        }
+//        printf("\n");
+//    }
 
     nn = setVertexes(n);
     nx = setCoordsX(n, startX);
